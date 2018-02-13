@@ -1,20 +1,31 @@
-%% grad_desc_noninv test
 
-%This function minimizes the objective function 
-% with out any restriction on S.
-%This function calls subgrad_lin_calc_noninv for calcuating subgradient.
-% This function calls fval for calculating the objective function.
+
+%  This function minimizes the objective function 
+%  with out any restriction on S. This menthod is
+%  generally good for high dimensions ( dimension >> sample_size ). It does not 
+%  need the Covariance matrix S ( dim*dim matrix), due to size restrictions.
+%  Instead it uses the data matrix X ( dim*sample_size matrx ) for its calculatons.
+%
+%  This function calls fval for calculating the objective function.
 
 %% Inputs
 
-%   1. s--------------> The covarience matrix.
-%   2. r--------------> The rank constraint on Lambda.
+%   1. data ----------> A dimension*sample_size matrix containing the data
+%   2. diags ---------> Diagonal entris of the covrainece matrix S. 
+%   2. rank--------------> The rank constraint on Lambda.
 %   3. psi_init-------> Initial value of Psi.
 %   4. threshold_l------> Required for stoping criteria on log likelihood.
 %   5. threshold_p------> Required for stopping criterion on norm of psi.
 %   5. upper_bound----> The upper limit of the diagonal elements of psi
 %   6. MAX_ITERS------> Max no of iteration after which programme will
 %                       terminate.
+%   7. svd_is_true ----> If True uses matlab function svd() to obtain 
+%                        singular values and singular vectors. When False, it uses
+%                        eigs(.) to obtain singular values and singular vectors. 
+%                        Please refer to paper https://arxiv.org/abs/1801.05935
+%                        for details.
+%
+%  8. lb ---------------> Lower bound for error variance estimate psi. 
 
 %% Stopping criteria
 
@@ -26,23 +37,19 @@
 
 % hist: 
       
-%    1. Data type-----> 1*2 cell.
-%    2. hist{1}-------> optimal value of psi.
-%    3. hist{2}-------> value of objective function at each iteration.
+%              Output Data type-----> 1*4 cell.
+%
+%    1. hist{1}-------> optimal value of psi.
+%    2. hist{2} ------> optimal objective value.
+%    3. hist{3} ------> time to calculate each iteration. 
+%    4. hist{4}-------> value of objective function at each iteration.
 
 %% CODE
 
-function [hist] = factmleExp(data,rank,lb,diags,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,svd_is_true) %send diagS
+function [hist] = factmleExp(data,rank,lb,diags,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,svd_is_true) 
 
-if nargin<5
-    
-    Psi_init=diags;
-    Threshold_l=10^-8;
-    Threshold_p=10^-5;
-    MAX_ITERS=1000;
-    
-end
-%%%diags=diag(S);
+
+
 f= -1*ones(1,MAX_ITERS);
 ftime = zeros(1,MAX_ITERS);
 f(1)=inf;
@@ -65,7 +72,7 @@ x_half=sqrt(x);
 s1=bsxfun(@times,x_half',data); % data%Phi^{1/2}
 
 if (svd_is_true==0)
-[~,d,U]=svds(s1,rank); % change to ssvd and svds [like eigs]
+[~,d,U]=svds(s1,rank); 
 else
     [~,d,U]=svd(s1,'econ'); d = d(1:rank,1:rank); U = U(:,1:rank);
 end
@@ -83,8 +90,8 @@ B = bsxfun(@times,diff_d,U'); % Diag(diff_d)*U' [n X p]
 C = s1'; % Phi^{1/2}*data' [p X n]
 D = data; % data [n X p]
 %}
-
 %%Q = A*(B*C); % This is dim*sample_size  
+
 Q = bsxfun(@times,1./x_half,U)*(bsxfun(@times,diff_d,U')*(s1')); % This is dim*sample_size  
 
 % diff_psi_0 = sum(Q.*D',2);
