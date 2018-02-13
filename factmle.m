@@ -10,15 +10,11 @@
 %   1. s--------------> The covarience matrix.
 %   2. r--------------> The rank constraint on Lambda.
 %   3. psi_init-------> Initial value of Psi.
-%   4. Threshold_l------> Required for stoping criteria on log likelihood.
-%   5. Threshold_p------> Required for stopping criterion on norm of psi.
+%   4. threshold_l------> Required for stoping criteria on log likelihood.
+%   5. threshold_p------> Required for stopping criterion on norm of psi.
 %   5. upper_bound----> The upper limit of the diagonal elements of psi
 %   6. MAX_ITERS------> Max no of iteration after which programme will
 %                       terminate.
-%   7. eig_is_true ----> If True, it will use eig(.) to calculate the eigenvalue and eigenvectors.
-%                        When if is False, it will use eigs(.) to calculate the eigenvalue and eigenvectors.
-%                        Please refere to paper https://arxiv.org/abs/1801.05935 for details instructions.
-%   8. lb -------------> Lower bound on the estimate of error variance Psi. 
 
 %% Stopping criteria
 
@@ -36,14 +32,8 @@
 
 %% CODE
 
-function [ hist] = factmle(rank,option,lb,S,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,eig_is_true)
+function [ hist] = factmle(rank,lb,S,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,eig_is_true)
 
-% switch option
-%     case 'cov'
-%         S=cov(data);
-%     case 'corr'
-%         S=corr(data);
-% end
 
 if nargin<5
     
@@ -154,7 +144,6 @@ function[fval] = calc_fval(diags ,x,eig_val)
 fval =  sum(-log(x)) +diags'*x +  sum(    log(max(1,eig_val)) -  max(1,eig_val) +1      );
 
 end
-
 
 
 
