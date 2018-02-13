@@ -33,7 +33,7 @@
 % hist: 
       
 %              Output Data type-----> 1*3 cell.
-%
+% 
 %    1. hist{1}-------> optimal value of psi.
 %    2. hist{2} ------> optimal objective value.
 %    3. hist{3}-------> value of objective function at each iteration.
