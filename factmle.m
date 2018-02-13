@@ -107,7 +107,7 @@ if ((f(k)~=inf) && (f(k-1)~=inf))
     
     check= ((  abs(  (  f(k)-f(k-1) )/f(k-1)  )  > Threshold_l)&&(k < MAX_ITERS)) ;
 
-else
+else 
     
     check =((norm((Psi-Old_Psi)./(dim*(Old_Psi)),2) > Threshold_p) && (k < MAX_ITERS));
     
