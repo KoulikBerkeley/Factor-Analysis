@@ -18,7 +18,7 @@
 %   7. eig_is_true ----> If True, it will use eig(.) to calculate the eigenvalue and eigenvectors.
 %                        When if is False, it will use eigs(.) to calculate the eigenvalue and eigenvectors.
 %                        Please refere to paper https://arxiv.org/abs/1801.05935 for details instructions.
-%   8.lb ---------------> Lower bound on the estimate of error variance Psi. 
+%   8. lb -------------> Lower bound on the estimate of error variance Psi. 
 
 %% Stopping criteria
 
