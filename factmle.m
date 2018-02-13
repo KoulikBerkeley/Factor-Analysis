@@ -1,8 +1,7 @@
-%% grad_desc_noninv test
 
-%This function minimizes the objective function 
+
+% This function minimizes the objective function 
 % with out any restriction on S.
-%This function calls subgrad_lin_calc_noninv for calcuating subgradient.
 % This function calls fval for calculating the objective function.
 
 %% Inputs
@@ -15,6 +14,13 @@
 %   5. upper_bound----> The upper limit of the diagonal elements of psi
 %   6. MAX_ITERS------> Max no of iteration after which programme will
 %                       terminate.
+%   7. eig_is_true ----> If True uses matlab function eig() to obtain 
+%                        eigrnvalues and eigenvectors. When False, it uses
+%                        eigs(.) to obtain eigenvalues and eigenvectors. 
+%                        Please refer to paper https://arxiv.org/abs/1801.05935
+%                        for details.
+%
+%  8. lb ---------------> Lower bound for error variance estimate psi. 
 
 %% Stopping criteria
 
@@ -26,25 +32,20 @@
 
 % hist: 
       
-%    1. Data type-----> 1*2 cell.
-%    2. hist{1}-------> optimal value of psi.
-%    3. hist{2}-------> value of objective function at each iteration.
+%              Output Data type-----> 1*3 cell.
+%
+%    1. hist{1}-------> optimal value of psi.
+%    2. hist{2} ------> optimal objective value.
+%    3. hist{3}-------> value of objective function at each iteration.
 
 %% CODE
 
 function [ hist] = factmle(rank,lb,S,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,eig_is_true)
 
 
-if nargin<5
-    
-    Psi_init=diag(S);
-    Threshold_l=10^-8;
-    Threshold_p=10^-5;
-    MAX_ITERS=1000;
-    
-end
 
-diags=diag(S); % changed: only one diags needed
+
+diags=diag(S); % Diagonal entries of S .
 
 f= -1*ones(1,MAX_ITERS);
 f(1)=inf;
@@ -84,21 +85,18 @@ end
 
  f(k)= calc_fval(diags,x,d);
  
-%updating optimal vaue of psi
+
 
 % Calculating subgradient.
     diff_d= max(0,1-1./d);
     A= bsxfun(@times,(bsxfun(@times,S,x_half)),1./(x_half'));
-    %A= bsxfun(@rdivide,(bsxfun(@times,S,x_half)),x_half');
     A=v'*A;
     B = bsxfun(@times,v,diff_d');
     
     
 diff_psi_0 = sum(B.*A',2);
 
-%subgrad=diag( v * diag(diff_d) * v' * diag(x_half)*S*diag(1./x_half) );
-%diff_psi_0= subgrad_lin_calc_noninv(S,x_half,v,d);
-
+%updating optimal vaue of psi
 Psi=max(diags-diff_psi_0,lb); 
 
 
@@ -118,13 +116,11 @@ end
 k=k+1;
 
 
-%A1=horzcat(A1,Psi);
+
 
 end
 
-% Computing fators
 
-%%%DiagPsi=Psi;
 
 hist.Psi = Psi;
 hist.Nllopt=f(k-1);
