@@ -3,15 +3,13 @@
 % This function minimizes the objective function 
 % with out any restriction on S.
 % This function calls fval for calculating the objective function.
-
-%% Inputs
-
-%   1. s--------------> The covarience matrix.
-%   2. r--------------> The rank constraint on Lambda.
-%   3. psi_init-------> Initial value of Psi.
-%   4. threshold_l------> Required for stoping criteria on log likelihood.
-%   5. threshold_p------> Required for stopping criterion on norm of psi.
-%   5. upper_bound----> The upper limit of the diagonal elements of psi
+%
+% --------------Inputs
+%
+%   1. S--------------> The covarience matrix.
+%   2. rank--------------> The rank constraint on Lambda.
+%   3. Psi_init-------> Initial value of Psi.
+%   4. tol -----------> Tolerance level
 %   6. MAX_ITERS------> Max no of iteration after which programme will
 %                       terminate.
 %   7. eig_is_true ----> If True uses matlab function eig() to obtain 
@@ -21,17 +19,17 @@
 %                        for details.
 %
 %  8. lb ---------------> Lower bound for error variance estimate psi. 
-
-%% Stopping criteria
-
+%
+% ---------Stopping criteria
+%
 % Euclidean norm of (psi_new-psi_old)/psi_old  < threshold 
 %                            OR
 % The no of iterations > MAX_ITERS.
-
-%% Output
-
+%
+% --------- Output
+%
 % hist: 
-      
+%     
 %              Output Data type-----> 1*3 cell.
 % 
 %    1. hist{1}-------> optimal value of psi.
@@ -40,9 +38,35 @@
 
 %% CODE
 
-function [ hist] = factmle(rank,lb,S,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,eig_is_true)
+%function [ hist] = factmle(rank,lb,S,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,eig_is_true)
+function [ hist] = factmle(S,rank,tol,varargin)
 
 
+% ---Preprocessing the input and assigning default values
+[~,dim] = size(S);
+
+p = inputParser;
+p.addRequired('S',@(x) length(S(:,1) == length(S(:,1))))
+p.addRequired('rank',@(x) (x >= 1)&&(x == floor(x) )&&( x <= dim ) )
+p.addRequired('tol',@(x) x >= eps )
+
+% Adding optional parameters and default values
+p.addParameter('MAX_ITERS',1000,@(x) (x>=1)&&(x == floor(x)));
+p.addParameter('lb',10^-3,@(x) (x>eps) );
+p.addParameter('eig_is_true',(1>0),@(x) (x == (1>0) )||(x == (1<0)) );
+p.addParameter('Psi_init',rand([dim,1]),@(x) iscolumn(x) == 1);
+
+% Parsing the input
+p.parse(S,rank,tol,varargin{:})
+
+lb = p.Results.lb; MAX_ITERS = p.Results.MAX_ITERS ; eig_is_true = p.Results.eig_is_true ; Psi_init = p.Results.Psi_init ;
+
+
+    
+    Threshold_l = tol;
+    Threshold_p = tol;
+    
+% --------------------------- end of pre processing --------------------
 
 
 diags=diag(S); % Diagonal entries of S .

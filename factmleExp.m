@@ -7,36 +7,34 @@
 %  Instead it uses the data matrix X ( dim*sample_size matrx ) for its calculatons.
 %
 %  This function calls fval for calculating the objective function.
-
-%% Inputs
-
+%
+% Inputs
+%
 %   1. data ----------> A dimension*sample_size matrix containing the data
 %   2. diags ---------> Diagonal entris of the covrainece matrix S. 
 %   2. rank--------------> The rank constraint on Lambda.
-%   3. psi_init-------> Initial value of Psi.
-%   4. threshold_l------> Required for stoping criteria on log likelihood.
-%   5. threshold_p------> Required for stopping criterion on norm of psi.
-%   5. upper_bound----> The upper limit of the diagonal elements of psi
-%   6. MAX_ITERS------> Max no of iteration after which programme will
+%   3. Psi_init-------> Initial value of Psi.
+%   4. tol -----------> Tolrance level
+%   5. MAX_ITERS------> Max no of iteration after which programme will
 %                       terminate.
-%   7. svd_is_true ----> If True uses matlab function svd() to obtain 
+%   6. svd_is_true ----> If True uses matlab function svd() to obtain 
 %                        singular values and singular vectors. When False, it uses
-%                        eigs(.) to obtain singular values and singular vectors. 
+%                        svds(.) to obtain singular values and singular vectors. 
 %                        Please refer to paper https://arxiv.org/abs/1801.05935
 %                        for details.
 %
-%  8. lb ---------------> Lower bound for error variance estimate psi. 
-
+%   7. lb ---------------> Lower bound for error variance estimate psi. 
+%
 %% Stopping criteria
-
+%
 % Euclidean norm of (psi_new-psi_old)/psi_old  < threshold 
 %                            OR
 % The no of iterations > MAX_ITERS.
-
+%
 %% Output
-
+%
 % hist: 
-      
+%     
 %              Output Data type-----> 1*4 cell.
 %
 %    1. hist{1}-------> optimal value of psi.
@@ -46,7 +44,39 @@
 
 %% CODE
 
-function [hist] = factmleExp(data,rank,lb,diags,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,svd_is_true) 
+%function [hist] = factmleExp(data,rank,lb,diags,Psi_init,Threshold_l,Threshold_p,MAX_ITERS,svd_is_true) 
+function[hist] = factmleExp(data,rank,tol,varargin)
+
+% -------------Preprocessing the input and assigning default values
+[~,dim] = size(data);
+data = stdd(data); % subtracting mean from data; 
+
+p = inputParser;
+p.addRequired('data',@(x) ismatrix(x) ==1 )
+p.addRequired('rank',@(x) (x >= 1)&&(x == floor(x) )&&( x <= dim ) )
+p.addRequired('tol',@(x) x >= eps )
+
+% Adding optional parameters and default values
+p.addParameter('MAX_ITERS',1000,@(x) (x>=1)&&(x == floor(x)));
+p.addParameter('lb',10^-3,@(x) (x>eps) );
+p.addParameter('svd_is_true',(1>0),@(x) (x == (1>0) )||(x == (1<0)) );
+p.addParameter('Psi_init',rand([dim,1]),@(x) iscolumn(x) == 1);
+p.addParameter('diags',sum(data.*data)', @(x) (iscolumn(x))&&(length(x) == dim) )
+
+% Parsing the input
+p.parse(data,rank,tol,varargin{:})
+
+lb = p.Results.lb; MAX_ITERS = p.Results.MAX_ITERS ; svd_is_true = p.Results.svd_is_true ; Psi_init = p.Results.Psi_init ;
+diags = p.Results.diags;
+
+
+    
+    Threshold_l = tol;
+    Threshold_p = tol;
+    
+% --------------------------- end of pre processing --------------------
+
+
 
 
 
@@ -83,14 +113,6 @@ diagd=((diag(d)).^2);
 
 % updating optimal vaue of psi
 diff_d= max(0,( 1-1./(diagd)));
-
-%{
-A = bsxfun(@times,1./x_half,U); % Phi^{-1/2}*U [p X n]
-B = bsxfun(@times,diff_d,U'); % Diag(diff_d)*U' [n X p]
-C = s1'; % Phi^{1/2}*data' [p X n]
-D = data; % data [n X p]
-%}
-%%Q = A*(B*C); % This is dim*sample_size  
 
 Q = bsxfun(@times,1./x_half,U)*(bsxfun(@times,diff_d,U')*(s1')); % This is dim*sample_size  
 
@@ -131,5 +153,11 @@ function[fval] = calc_fval(diags ,x,eig_val)
     fval =  sum(-log(x)) +diags'*x +  sum(    log(max(1,eig_val)) -  max(1,eig_val) +1      );
 end
 
-
+%% stdd
+function [ data1] = stdd(data1)
+[n,~]=size(data1);
+m = mean(data1',2);
+data1 = bsxfun(@minus,data1',m)';
+data1 = data1/sqrt(n);
+end
  
