@@ -14,7 +14,7 @@ dimension = size(Sigma,1);
 
 data = randn(N,dimension)*RR; S=cov(data,1);
 
-curr_rank = 5;
+curr_rank = 5; tol = 10^-5;
 
 % Using Factmle with default options
 y = factmleExp(data,curr_rank,tol);
@@ -43,7 +43,7 @@ RR=chol(Sigma);
 dimension = size(Sigma,1);
 
 data = randn(N,dimension)*RR; 
-curr_rank = 5; tol = 10^-3;
+curr_rank = 5; tol = 10^-5;
 
 % factmleExp with default options
 x = factmleExp(data,curr_rank,tol);
