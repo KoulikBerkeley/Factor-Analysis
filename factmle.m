@@ -88,8 +88,6 @@ while (check)
 x=1./Psi;
 x_half=sqrt(x);
 
-%Xhalf=diag(x_half);
-%s1= Xhalf* S * Xhalf;
 
 s1=bsxfun(@times,(bsxfun(@times,S,x_half')),x_half);
 s1=(s1+s1')/2;
