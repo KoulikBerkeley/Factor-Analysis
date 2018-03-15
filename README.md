@@ -19,7 +19,10 @@ If you find FACTMLE useful in your research, please consider citing the followin
  
 @article{khamaru2018computation,
   title={Computation of the Maximum Likelihood estimator in low-rank Factor Analysis},
+  
   author={Khamaru, Koulik and Mazumder, Rahul},
+  
   journal={arXiv preprint arXiv:1801.05935},
+  
   year={2018}
 }
