@@ -18,6 +18,7 @@ file showing how to use the codes.
 If you find FACTMLE useful in your research, please consider citing the following paper:
  
 @article{khamaru2018computation,
+  
   title={Computation of the Maximum Likelihood estimator in low-rank Factor Analysis},
   
   author={Khamaru, Koulik and Mazumder, Rahul},
