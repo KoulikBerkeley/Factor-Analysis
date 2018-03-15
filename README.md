@@ -10,4 +10,14 @@ is very large. For details please refer the paper.
 For initialization instructions, please refer to the code files. We also provided an Example.m
 file showing how to use the codes. 
 
+
+# Citation
+
+If you find FACTMLE useful in your research, please consider citing the following paper:
  
+@article{khamaru2018computation,
+  title={Computation of the Maximum Likelihood estimator in low-rank Factor Analysis},
+  author={Khamaru, Koulik and Mazumder, Rahul},
+  journal={arXiv preprint arXiv:1801.05935},
+  year={2018}
+}
