@@ -7,7 +7,7 @@ We include two functions for the proposed FA method; the first one
 is for smaller/ moderate dimensions and the second one is used when data dimension 
 is very large. For details please refer the paper. 
 
-# Code and Examples 
+# MATLAB implementation and Examples 
 
 For initialization instructions, please refer to the code files. We also provided an Example.m
 file showing how to use the codes. 
